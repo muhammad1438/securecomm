@@ -5,9 +5,9 @@ export const lightColors = {
   primaryLight: '#40A9FF',
   
   // Secondary colors
-  secondary: '#5856D6',
-  secondaryDark: '#3F3E9E',
-  secondaryLight: '#7B7AE8',
+  secondary: '#E9ECEF',
+  secondaryDark: '#DEE2E6',
+  secondaryLight: '#F1F3F4',
   
   // Background colors
   background: '#FFFFFF',
@@ -15,8 +15,8 @@ export const lightColors = {
   backgroundTertiary: '#E9ECEF',
   
   // Surface colors
-  surface: '#FFFFFF',
-  surfaceSecondary: '#F1F3F4',
+  surface: '#F1F3F4',
+  surfaceSecondary: '#E9ECEF',
   
   // Text colors
   text: '#1D1D1F',

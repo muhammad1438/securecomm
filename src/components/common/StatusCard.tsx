@@ -1,18 +1,22 @@
 import React from 'react';
-import { View, Text, ViewStyle } from 'react-native';
+import { View, Text, ViewStyle, TouchableOpacity } from 'react-native';
 import { useTheme } from '../../theme';
 
 export interface StatusCardProps {
-  icon: React.ReactNode;
+  avatar?: string;
   title: string;
-  status: string;
+  subtitle: string;
+  timestamp: string;
+  onPress?: () => void;
   style?: ViewStyle;
 }
 
 export const StatusCard: React.FC<StatusCardProps> = ({
-  icon,
+  avatar,
   title,
-  status,
+  subtitle,
+  timestamp,
+  onPress,
   style,
 }) => {
   const { theme } = useTheme();
@@ -20,20 +24,25 @@ export const StatusCard: React.FC<StatusCardProps> = ({
   const containerStyle: ViewStyle = {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: theme.colors.background,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
     minHeight: 72,
+  };
+
+  const leftSectionStyle: ViewStyle = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
     gap: theme.spacing.md,
   };
 
-  const iconContainerStyle: ViewStyle = {
-    width: 48,
-    height: 48,
+  const avatarStyle: ViewStyle = {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
   };
 
   const textContainerStyle: ViewStyle = {
@@ -48,7 +57,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({
     lineHeight: theme.typography.fontSize.base * 1.5,
   };
 
-  const statusStyle = {
+  const subtitleStyle = {
     fontSize: theme.typography.fontSize.sm,
     fontFamily: theme.typography.fontFamily.regular,
     color: theme.colors.textSecondary,
@@ -56,15 +65,37 @@ export const StatusCard: React.FC<StatusCardProps> = ({
     marginTop: 2,
   };
 
-  return (
+  const timestampStyle = {
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.fontSize.sm * 1.4,
+  };
+
+  const content = (
     <View style={[containerStyle, style]}>
-      <View style={iconContainerStyle}>
-        {icon}
+      <View style={leftSectionStyle}>
+        <View style={avatarStyle} />
+        <View style={textContainerStyle}>
+          <Text style={titleStyle} numberOfLines={1}>
+            {title}
+          </Text>
+          <Text style={subtitleStyle} numberOfLines={2}>
+            {subtitle}
+          </Text>
+        </View>
       </View>
-      <View style={textContainerStyle}>
-        <Text style={titleStyle}>{title}</Text>
-        <Text style={statusStyle}>{status}</Text>
-      </View>
+      <Text style={timestampStyle}>{timestamp}</Text>
     </View>
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
 };

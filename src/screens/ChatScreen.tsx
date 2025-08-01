@@ -1,181 +1,204 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
-  FlatList,
-  TextInput,
+  ScrollView,
+  SafeAreaView,
   TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
+  ViewStyle,
 } from "react-native";
-import { RouteProp } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../navigation/AppNavigator";
-import { Message } from "../../types/message";
-import { bluetoothService } from "../../services/BluetoothService";
-import { networkService } from "../../services/NetworkService";
-import { messageService } from "../../services/MessageService";
-import { MessageBubble } from "../../components/chat/MessageBubble";
+import { useTheme } from "../theme";
+import { MessageBubble } from "../components/chat/MessageBubble";
+import { MessageInput } from "../components/chat/MessageInput";
+import { ThemeToggle } from "../components/common/ThemeToggle";
 
-type ChatScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, "Chat">;
-  route: RouteProp<RootStackParamList, "Chat">;
-};
+type Screen = 'chat' | 'contacts' | 'network' | 'settings';
 
-export const ChatScreen: React.FC<ChatScreenProps> = ({
-  navigation,
-  route,
-}) => {
-  const { contactId, contactName } = route.params;
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputText, setInputText] = useState("");
-  const flatListRef = useRef<FlatList>(null);
+interface ChatScreenProps {
+  onNavigate?: (screen: Screen) => void;
+}
 
-  useEffect(() => {
-    navigation.setOptions({ title: contactName });
-    loadChatHistory();
+export const ChatScreen: React.FC<ChatScreenProps> = ({ onNavigate }) => {
+  const { theme } = useTheme();
+  const [messages, setMessages] = useState([
+    {
+      message: "Hey, are you free for a quick chat?",
+      senderName: "Sarah Miller",
+      isOwn: false,
+    },
+    {
+      message: "Yeah, what's up?",
+      senderName: "Alex Turner",
+      isOwn: true,
+    },
+    {
+      message: "I wanted to discuss the new project proposal. Can we go over it together?",
+      senderName: "Sarah Miller",
+      isOwn: false,
+    },
+    {
+      message: "Sure, I'm ready. Let's do it.",
+      senderName: "Alex Turner",
+      isOwn: true,
+    },
+    {
+      message: "Great! I'll send you the document now.",
+      senderName: "Sarah Miller",
+      isOwn: false,
+    },
+    {
+      message: "Sounds good. Waiting for it.",
+      senderName: "Alex Turner",
+      isOwn: true,
+    },
+  ]);
 
-    const handleMessageReceived = (message: Message) => {
-      if (message.sender === contactId) {
-        setMessages((prevMessages) => [...prevMessages, message]);
-      }
-    };
-
-    bluetoothService.on("messageReceived", handleMessageReceived);
-
-    return () => {
-      bluetoothService.off("messageReceived", handleMessageReceived);
-    };
-  }, [contactId, contactName, navigation]);
-
-  useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: true });
-    }
-  }, [messages]);
-
-  const loadChatHistory = async () => {
-    const history = await messageService.getMessageHistory(contactId);
-    setMessages(history);
+  const containerStyle: ViewStyle = {
+    flex: 1,
+    backgroundColor: theme.colors.background,
   };
 
-  const sendTextMessage = async () => {
-    if (!inputText.trim()) return;
+  const headerStyle: ViewStyle = {
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  };
 
-    const message: Message = {
-      id: `msg_${Date.now()}`,
-      type: "text",
-      content: inputText,
-      sender: networkService.getDeviceId(),
-      recipient: contactId,
-      timestamp: Date.now(),
-      encrypted: true,
-      status: "sending",
+  const logoContainerStyle: ViewStyle = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  };
+
+  const logoStyle: ViewStyle = {
+    width: 16,
+    height: 16,
+    backgroundColor: theme.colors.text,
+  };
+
+  const titleStyle = {
+    fontSize: theme.typography.fontSize.lg,
+    fontFamily: theme.typography.fontFamily.bold,
+    color: theme.colors.text,
+  };
+
+  const navContainerStyle: ViewStyle = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 36,
+  };
+
+  const navLinkStyle = {
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.medium,
+    color: theme.colors.text,
+  };
+
+  const rightHeaderStyle: ViewStyle = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  };
+
+  const actionButtonStyle: ViewStyle = {
+    width: 40,
+    height: 40,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  };
+
+  const avatarStyle: ViewStyle = {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.surface,
+  };
+
+  const contentContainerStyle: ViewStyle = {
+    paddingHorizontal: theme.spacing.xl * 2.5,
+    paddingVertical: theme.spacing.md,
+    maxWidth: 960,
+    alignSelf: 'center',
+    width: '100%',
+    flex: 1,
+  };
+
+  const chatTitleStyle = {
+    fontSize: 22,
+    fontFamily: theme.typography.fontFamily.bold,
+    color: theme.colors.text,
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
+    paddingTop: theme.spacing.md,
+  };
+
+  const handleSendMessage = (message: string) => {
+    const newMessage = {
+      message,
+      senderName: "Alex Turner",
+      isOwn: true,
     };
-
-    setMessages((prevMessages) => [...prevMessages, message]);
-    setInputText("");
-
-    try {
-      await networkService.sendMessage(contactId, message);
-      await messageService.saveMessageHistory(message);
-      updateMessageStatus(message.id, "sent");
-    } catch (error) {
-      updateMessageStatus(message.id, "failed");
-    }
+    setMessages(prev => [...prev, newMessage]);
   };
-
-  const updateMessageStatus = (
-    messageId: string,
-    status: Message["status"]
-  ) => {
-    setMessages((prevMessages) =>
-      prevMessages.map((msg) =>
-        msg.id === messageId ? { ...msg, status } : msg
-      )
-    );
-  };
-
-  const renderMessage = ({ item }: { item: Message }) => (
-    <MessageBubble
-      message={item}
-      isOwn={item.sender === networkService.getDeviceId()}
-    />
-  );
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-    >
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        style={styles.messagesList}
-        contentContainerStyle={styles.messagesContainer}
-      />
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Type a message..."
-          multiline
-        />
-
-        <TouchableOpacity
-          style={styles.sendButton}
-          onPress={sendTextMessage}
-          disabled={!inputText.trim()}
-        >
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={containerStyle}>
+      <View style={headerStyle}>
+        <View style={logoContainerStyle}>
+          <View style={logoStyle} />
+          <Text style={titleStyle}>SecureComm</Text>
+        </View>
+        <View style={navContainerStyle}>
+          <TouchableOpacity onPress={() => onNavigate?.('chat')}>
+            <Text style={[navLinkStyle, { opacity: 1 }]}>Messages</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate?.('contacts')}>
+            <Text style={navLinkStyle}>Contacts</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate?.('network')}>
+            <Text style={navLinkStyle}>Network Map</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => onNavigate?.('settings')}>
+            <Text style={navLinkStyle}>Settings</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={rightHeaderStyle}>
+          <TouchableOpacity style={actionButtonStyle}>
+            <Text style={{ color: theme.colors.text, fontSize: 20 }}>🔍</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={actionButtonStyle}>
+            <Text style={{ color: theme.colors.text, fontSize: 20 }}>📞</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={actionButtonStyle}>
+            <Text style={{ color: theme.colors.text, fontSize: 20 }}>📹</Text>
+          </TouchableOpacity>
+          <ThemeToggle />
+          <View style={avatarStyle} />
+        </View>
       </View>
-    </KeyboardAvoidingView>
+      
+      <View style={contentContainerStyle}>
+        <Text style={chatTitleStyle}>Sarah Miller</Text>
+        
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+          {messages.map((msg, index) => (
+            <MessageBubble
+              key={index}
+              message={msg.message}
+              senderName={msg.senderName}
+              isOwn={msg.isOwn}
+            />
+          ))}
+        </ScrollView>
+        
+        <MessageInput onSend={handleSendMessage} />
+      </View>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  messagesList: {
-    flex: 1,
-  },
-  messagesContainer: {
-    padding: 16,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
-  },
-  textInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 8,
-  },
-  sendButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  sendButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-});

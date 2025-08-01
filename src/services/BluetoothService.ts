@@ -193,8 +193,50 @@ class BluetoothService {
   // Event handlers
   onDeviceDiscovered?: (device: BluetoothDevice) => void;
   onConnectionStateChanged?: (deviceId: string, status: string) => void;
-  onMessageReceived?: (message: Message) => void;
+  private messageReceivedCallbacks: ((message: any) => void)[] = [];
   onSystemMessageReceived?: (message: Message) => void;
+
+  // Method to register message received callbacks
+  onMessageReceived(callback: (message: any) => void): () => void {
+    this.messageReceivedCallbacks.push(callback);
+    return () => {
+      const index = this.messageReceivedCallbacks.indexOf(callback);
+      if (index > -1) {
+        this.messageReceivedCallbacks.splice(index, 1);
+      }
+    };
+  }
+
+  // Method to broadcast messages
+  async broadcast(data: any): Promise<void> {
+    try {
+      // For now, simulate broadcasting by logging
+      console.log('Broadcasting emergency message:', data);
+      
+      // In a real implementation, this would send to all connected devices
+      const connectedDevices = this.getConnectedDevices();
+      for (const device of connectedDevices) {
+        if (device.id) {
+          const encryptedData = await cryptoService.encrypt(JSON.stringify(data));
+          await BluetoothMeshModule.sendMessage(device.id, encryptedData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to broadcast message:', error);
+      throw error;
+    }
+  }
+
+  // Trigger message received callbacks (for testing/simulation)
+  private triggerMessageReceived(message: any) {
+    this.messageReceivedCallbacks.forEach(callback => {
+      try {
+        callback(message);
+      } catch (error) {
+        console.error('Error in message received callback:', error);
+      }
+    });
+  }
 
   cleanup(): void {
     this.eventSubscriptions.forEach((subscription) => subscription.remove());
