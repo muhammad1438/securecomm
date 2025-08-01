@@ -1,5 +1,4 @@
-
-import { BluetoothDevice, BluetoothConnection } from './bluetooth';
+import { BluetoothDevice, BluetoothConnection } from "./bluetooth";
 
 export interface NetworkTopology {
   devices: Map<string, BluetoothDevice>;

@@ -1,4 +1,3 @@
-
 export interface BluetoothDevice {
   id: string;
   name: string;
@@ -11,15 +10,15 @@ export interface BluetoothDevice {
   publicKey?: string;
 }
 
-export type DeviceCapability = 'text' | 'voice' | 'file' | 'emergency';
-export type TrustLevel = 'unknown' | 'paired' | 'trusted' | 'verified';
+export type DeviceCapability = "text" | "voice" | "file" | "emergency";
+export type TrustLevel = "unknown" | "paired" | "trusted" | "verified";
 
 export interface BluetoothConnection {
   deviceId: string;
   connectionId: string;
   established: number;
   quality: ConnectionQuality;
-  role: 'central' | 'peripheral';
+  role: "central" | "peripheral";
 }
 
 export interface ConnectionQuality {

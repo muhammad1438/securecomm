@@ -1,11 +1,11 @@
 module.exports = {
-  preset: 'react-native',
+  preset: "react-native",
   transform: {
-    '^.+\.(js|jsx|ts|tsx)$': 'babel-jest',
+    "^.+.(js|jsx|ts|tsx)$": "babel-jest",
   },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|uuid)/)',
+    "node_modules/(?!((jest-)?react-native|@react-native(-community)?|uuid)/)",
   ],
-  testRegex: '(/__tests__/.*|(\.|/)(test|spec))\.(jsx?|tsx?)$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  testRegex: "(/__tests__/.*|(.|/)(test|spec)).(jsx?|tsx?)$",
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
 };

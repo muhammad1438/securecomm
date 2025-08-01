@@ -1,7 +1,6 @@
-
-import { Message } from '../types/message';
-import { bluetoothService } from './BluetoothService';
-import { storageService } from './StorageService';
+import { Message } from "../types/message";
+import { bluetoothService } from "./BluetoothService";
+import { storageService } from "./StorageService";
 
 class MessageService {
   async sendMessage(message: Message): Promise<void> {
@@ -9,7 +8,7 @@ class MessageService {
       await bluetoothService.sendMessage(message.recipient, message);
       await this.saveMessageHistory(message);
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error("Failed to send message:", error);
       throw error;
     }
   }
@@ -20,7 +19,7 @@ class MessageService {
       const updatedHistory = [...currentHistory, message];
       storageService.saveMessages(message.recipient, updatedHistory);
     } catch (error) {
-      console.error('Failed to save message history:', error);
+      console.error("Failed to save message history:", error);
     }
   }
 
@@ -28,7 +27,7 @@ class MessageService {
     try {
       return await storageService.getMessages(contactId);
     } catch (error) {
-      console.error('Failed to get message history:', error);
+      console.error("Failed to get message history:", error);
       return [];
     }
   }

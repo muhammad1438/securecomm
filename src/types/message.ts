@@ -1,4 +1,3 @@
-
 export interface Message {
   id: string;
   type: MessageType;
@@ -13,5 +12,10 @@ export interface Message {
   channel?: string; // Added channel property
 }
 
-export type MessageType = 'text' | 'voice' | 'file' | 'system' | 'emergency';
-export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+export type MessageType = "text" | "voice" | "file" | "system" | "emergency";
+export type MessageStatus =
+  | "sending"
+  | "sent"
+  | "delivered"
+  | "read"
+  | "failed";

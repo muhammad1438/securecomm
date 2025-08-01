@@ -1,10 +1,8 @@
-
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { AppNavigator } from './navigation/AppNavigator';
-import { cryptoService } from './services/CryptoService';
-import { bluetoothService } from './services/BluetoothService';
-import { networkService } from './services/NetworkService';
+import React, { useEffect } from "react";
+import { ThemeProvider } from "./theme";
+import { HomeScreen } from "./screens/HomeScreen";
+import { cryptoService } from "./services/CryptoService";
+import { bluetoothService } from "./services/BluetoothService";
 
 const App = () => {
   useEffect(() => {
@@ -12,7 +10,7 @@ const App = () => {
       try {
         await cryptoService.initialize();
         await bluetoothService.startAdvertising();
-        // The network service is already initialized in its constructor
+        console.log("SecureComm app initialized successfully!");
       } catch (error) {
         console.error("Failed to initialize the app:", error);
       }
@@ -22,9 +20,9 @@ const App = () => {
   }, []);
 
   return (
-    <NavigationContainer>
-      <AppNavigator />
-    </NavigationContainer>
+    <ThemeProvider>
+      <HomeScreen />
+    </ThemeProvider>
   );
 };
 
